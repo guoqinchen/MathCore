@@ -1,0 +1,14 @@
+/Users/gq/projects/MathCore/target/debug/deps/serde-2fc52474d653a153.d: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/integer128.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/mod.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/de.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/ser.rs /Users/gq/projects/MathCore/target/debug/build/serde-35ba4472f2ee923c/out/private.rs
+
+/Users/gq/projects/MathCore/target/debug/deps/libserde-2fc52474d653a153.rlib: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/integer128.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/mod.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/de.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/ser.rs /Users/gq/projects/MathCore/target/debug/build/serde-35ba4472f2ee923c/out/private.rs
+
+/Users/gq/projects/MathCore/target/debug/deps/libserde-2fc52474d653a153.rmeta: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/integer128.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/mod.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/de.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/ser.rs /Users/gq/projects/MathCore/target/debug/build/serde-35ba4472f2ee923c/out/private.rs
+
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/lib.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/integer128.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/mod.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/de.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/serde-1.0.228/src/private/ser.rs:
+/Users/gq/projects/MathCore/target/debug/build/serde-35ba4472f2ee923c/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/gq/projects/MathCore/target/debug/build/serde-35ba4472f2ee923c/out

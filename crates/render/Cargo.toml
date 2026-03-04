@@ -1,0 +1,24 @@
+[package]
+name = "mathcore-render"
+description = "MathCore render plugins - GPU rendering with wgpu"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Workspace dependencies
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+parking_lot.workspace = true
+
+# GPU rendering
+wgpu = "0.19"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }

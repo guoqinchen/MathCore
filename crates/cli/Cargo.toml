@@ -1,0 +1,33 @@
+[package]
+name = "mathcore-cli"
+description = "MathCore command-line interface"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "mathcore"
+path = "src/main.rs"
+
+[dependencies]
+# Workspace dependencies
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-appender.workspace = true
+camino.workspace = true
+
+# CLI
+clap = { version = "4.5", features = ["derive"] }
+
+# Internal dependencies
+mathcore-compute = { path = "../compute" }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }

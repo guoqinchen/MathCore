@@ -1,0 +1,1 @@
+/Users/gq/projects/MathCore/target/debug/libmathcore_cli.rlib: /Users/gq/projects/MathCore/crates/cli/src/lib.rs /Users/gq/projects/MathCore/crates/compute/src/external/mod.rs /Users/gq/projects/MathCore/crates/compute/src/lib.rs /Users/gq/projects/MathCore/crates/compute/src/numeric/mod.rs /Users/gq/projects/MathCore/crates/compute/src/symbolic/mod.rs

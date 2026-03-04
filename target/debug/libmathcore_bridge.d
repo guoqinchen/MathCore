@@ -1,0 +1,1 @@
+/Users/gq/projects/MathCore/target/debug/libmathcore_bridge.rlib: /Users/gq/projects/MathCore/crates/bridge/src/lib.rs /Users/gq/projects/MathCore/crates/bridge/src/mcp/mod.rs /Users/gq/projects/MathCore/crates/bridge/src/python/mod.rs

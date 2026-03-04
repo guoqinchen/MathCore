@@ -1,0 +1,10 @@
+/Users/gq/projects/MathCore/target/release/deps/thread_local-13dac94c221b9f2f.d: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/cached.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/thread_id.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/unreachable.rs
+
+/Users/gq/projects/MathCore/target/release/deps/libthread_local-13dac94c221b9f2f.rlib: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/cached.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/thread_id.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/unreachable.rs
+
+/Users/gq/projects/MathCore/target/release/deps/libthread_local-13dac94c221b9f2f.rmeta: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/cached.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/thread_id.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/unreachable.rs
+
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/lib.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/cached.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/thread_id.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thread_local-1.1.9/src/unreachable.rs:

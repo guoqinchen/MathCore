@@ -1,0 +1,14 @@
+/Users/gq/projects/MathCore/target/release/deps/thiserror-0bd45672daed9313.d: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/aserror.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/display.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/var.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/private.rs /Users/gq/projects/MathCore/target/release/build/thiserror-7b3429f82a03e356/out/private.rs
+
+/Users/gq/projects/MathCore/target/release/deps/libthiserror-0bd45672daed9313.rlib: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/aserror.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/display.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/var.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/private.rs /Users/gq/projects/MathCore/target/release/build/thiserror-7b3429f82a03e356/out/private.rs
+
+/Users/gq/projects/MathCore/target/release/deps/libthiserror-0bd45672daed9313.rmeta: /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/lib.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/aserror.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/display.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/var.rs /Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/private.rs /Users/gq/projects/MathCore/target/release/build/thiserror-7b3429f82a03e356/out/private.rs
+
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/lib.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/aserror.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/display.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/var.rs:
+/Users/gq/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-4dc01642fd091eda/thiserror-2.0.18/src/private.rs:
+/Users/gq/projects/MathCore/target/release/build/thiserror-7b3429f82a03e356/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/gq/projects/MathCore/target/release/build/thiserror-7b3429f82a03e356/out
