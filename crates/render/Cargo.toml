@@ -18,6 +18,7 @@ tracing.workspace = true
 parking_lot.workspace = true
 
 # GPU rendering
+bytemuck = { version = "1.0", features = ["derive"] }
 wgpu = "0.19"
 
 [dev-dependencies]
