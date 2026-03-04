@@ -1,0 +1,24 @@
+[package]
+name = "mathcore-verification"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "MathCore Verification Mesh - Three-level verification system"
+
+[dependencies]
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+
+# Internal dependencies
+mathcore-kernel = { path = "../kernel" }
+mathcore-compute = { path = "../compute" }
+mathcore-smt = { path = "../smt" }
+mathcore-symbols = { path = "../symbols" }
+
+[dev-dependencies]
+mathcore-kernel = { path = "../kernel" }
+mathcore-compute = { path = "../compute" }
+
+[features]
+default = []
