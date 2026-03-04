@@ -45,6 +45,9 @@ rayon = "1.8"
 lru = "0.12"
 moka = { version = "0.12", features = ["sync"] }
 
+# Internal dependencies
+mathcore-compute = { path = "../compute" }
+
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }

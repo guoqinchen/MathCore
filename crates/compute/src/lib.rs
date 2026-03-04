@@ -5,7 +5,7 @@
 pub mod cache;
 pub mod external;
 pub mod numeric;
-pub mod simd;
+pub mod replay;
 pub mod symbolic;
 
 use std::collections::HashMap;
@@ -31,6 +31,10 @@ pub enum Error {
 
 // Re-export symbolic functions
 pub use symbolic::{differentiate, evaluate, parse, simplify, Expr, SymbolicEngine};
+
+// Re-export replay functions
+pub use replay::{ComputationStep, ComputationTrace, TraceBuilder, TraceReplayer};
+
 
 // Re-export numeric functions
 pub use numeric::{

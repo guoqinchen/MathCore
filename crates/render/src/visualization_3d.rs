@@ -16,7 +16,7 @@ use wgpu::{
 use crate::Error;
 
 /// 3D Vector
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,

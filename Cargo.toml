@@ -8,10 +8,9 @@ members = [
     "crates/cli",
     "crates/smt",
     "crates/symbols",
-    "crates/symbols",
     "crates/verification",
+    "crates/mcp",
 ]
-
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
