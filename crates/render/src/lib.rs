@@ -2,8 +2,10 @@
 //!
 //! This crate provides GPU-based rendering using wgpu.
 
+pub mod data;
 pub mod engine;
 pub mod pipeline;
+pub mod shm;
 pub mod visualization;
 pub mod wgpu;
 pub mod window;
@@ -22,4 +24,10 @@ pub enum Error {
 
     #[error("Render error: {0}")]
     Render(String),
+
+    #[error("Data error: {0}")]
+    Data(String),
+
+    #[error("IO error: {0}")]
+    Io(String),
 }
