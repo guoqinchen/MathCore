@@ -32,5 +32,17 @@ memmap2 = "0.9"
 flatbuffers = "25.12"
 flatk = "0.5"
 
+# SIMD acceleration
+autocfg = "1.0"
+portable-atomic = "1.6"
+
+# Parallel processing
+rayon = "1.8"
+
+# Caching
+lru = "0.12"
+moka = { version = "0.12", features = ["sync"] }
+
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
