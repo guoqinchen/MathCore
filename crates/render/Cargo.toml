@@ -8,6 +8,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+lazy_static = "1.4"
+glam = "0.24"
 # Workspace dependencies
 serde.workspace = true
 serde_json.workspace = true

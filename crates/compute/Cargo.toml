@@ -8,6 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+lazy_static = "1.4"
 serde.workspace = true
 serde_json.workspace = true
 rmp-serde.workspace = true

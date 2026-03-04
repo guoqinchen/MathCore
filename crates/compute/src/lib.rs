@@ -2,6 +2,7 @@
 //!
 //! This crate provides symbolic, numeric, and external computation capabilities.
 
+pub mod cache;
 pub mod external;
 pub mod numeric;
 pub mod simd;
