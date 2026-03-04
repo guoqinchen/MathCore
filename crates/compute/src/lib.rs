@@ -4,6 +4,7 @@
 
 pub mod external;
 pub mod numeric;
+pub mod simd;
 pub mod symbolic;
 
 use std::collections::HashMap;

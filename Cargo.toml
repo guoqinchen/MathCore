@@ -42,6 +42,7 @@ parking_lot = "0.12"
 camino = "1.1"
 ordered-float = "3.8"
 num-traits = "0.2"
+portable-atomic = "1.6"
 
 # Testing
 mockall = "0.13"

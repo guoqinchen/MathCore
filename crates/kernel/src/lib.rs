@@ -5,6 +5,8 @@ pub mod core;
 pub mod error;
 pub mod protocol;
 pub mod sandbox;
+pub mod streaming;
+pub mod validation;
 
 pub use bus::{
     Bus, BusConfig, BusStats, BusStatsSnapshot, Message, MessageMetadata, MessagePriority, Request,
