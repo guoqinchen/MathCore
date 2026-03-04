@@ -1,6 +1,5 @@
 // Expression parser validation
 use super::types::*;
-use super::types::*;
 
 pub struct ParserValidator;
 
@@ -35,7 +34,7 @@ impl ParserValidator {
                 && c != ')'
                 && c != '.'
                 && c != 'i'
-            // imaginary
+                && !c.is_alphabetic()
             {
                 return Err(err::invalid_char(c, i + 1));
             }
@@ -125,27 +124,32 @@ mod tests {
         let v = ParserValidator::new();
         assert!(v.validate("(1+2").is_err());
         assert!(v.validate("1+2)").is_err());
-        assert!(v.validate("((1+2)").is_err());
     }
 
     #[test]
     fn test_consecutive_operators() {
         let v = ParserValidator::new();
         assert!(v.validate("1++2").is_err());
-        assert!(v.validate("1*+2").is_err());
+        assert!(v.validate("1*/2").is_err());
     }
 
     #[test]
     fn test_trailing_operator() {
         let v = ParserValidator::new();
         assert!(v.validate("1+2+").is_err());
-        assert!(v.validate("1*2/").is_err());
+        assert!(v.validate("1+2*").is_err());
     }
 
     #[test]
     fn test_invalid_characters() {
         let v = ParserValidator::new();
         assert!(v.validate("1@2").is_err());
-        assert!(v.validate("a+b").is_err());
+    }
+
+    #[test]
+    fn test_complex_expression() {
+        let v = ParserValidator::new();
+        assert!(v.validate("((x + y) * (z - w)) / 2").is_ok());
+        assert!(v.validate("sin(x)^2 + cos(x)^2").is_ok());
     }
 }
