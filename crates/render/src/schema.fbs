@@ -1,0 +1,178 @@
+// MathCore Streaming Protocol Schema
+// FlatBuffers schema for real-time proof streaming and graphics frames
+
+namespace MathCore.Stream;
+
+// ============================================================================
+// Proof Step - Represents a single step in a mathematical proof
+// ============================================================================
+
+table ProofStep {
+  // Unique identifier for this step
+  step_id: ulong;
+  
+  // Proof this step belongs to
+  proof_id: ulong;
+  
+  // Step content (LaTeX, text, or symbolic)
+  content: string;
+  
+  // Step type
+  step_type: StepType;
+  
+  // Dependencies (indices of previous steps)
+  dependencies: [ulong];
+  
+  // Timestamp when this step was generated
+  timestamp: long;
+  
+  // Confidence score (0.0 - 1.0)
+  confidence: float = 1.0;
+  
+  // Optional metadata key-value pairs
+  metadata: [KeyValue];
+}
+
+enum StepType : byte {
+  Axiom,
+  Definition,
+  Lemma,
+  Theorem,
+  Proof,
+  Corollary,
+  Computation,
+  Verification
+}
+
+table KeyValue {
+  key: string;
+  value: string;
+}
+
+// ============================================================================
+// Graphics Frame - Represents a single frame of graphics/rendering
+// ============================================================================
+
+table GraphicsFrame {
+  // Frame sequence number
+  frame_id: ulong;
+  
+  // Timestamp when this frame was generated
+  timestamp: long;
+  
+  // Frame dimensions
+  width: ushort;
+  height: ushort;
+  
+  // Pixel data format
+  pixel_format: PixelFormat;
+  
+  // Raw pixel data (or reference to shared memory)
+  pixels: [ubyte];
+  
+  // Optional: reference to shared memory buffer
+  shm_id: string = "";
+  
+  // Viewport/visible region
+  viewport: Viewport;
+  
+  // Frame metadata
+  metadata: [KeyValue];
+}
+
+enum PixelFormat : byte {
+  RGBA8,
+  BGRA8,
+  RGB8,
+  BGR8,
+  Gray8,
+  RGBA16F,
+  RGBA32F
+}
+
+table Viewport {
+  x: float = 0.0;
+  y: float = 0.0;
+  width: float;
+  height: float;
+  scale: float = 1.0;
+}
+
+// ============================================================================
+// Progress Update - Represents proof verification progress
+// ============================================================================
+
+table ProgressUpdate {
+  // Proof being verified
+  proof_id: ulong;
+  
+  // Current step index
+  current_step: ulong;
+  
+  // Total steps
+  total_steps: ulong;
+  
+  // Progress percentage (0.0 - 100.0)
+  percentage: float;
+  
+  // Current status
+  status: ProgressStatus;
+  
+  // Optional message
+  message: string = "";
+  
+  // Timestamp
+  timestamp: long;
+}
+
+enum ProgressStatus : byte {
+  Pending,
+  Running,
+  Completed,
+  Failed,
+  Cancelled
+}
+
+// ============================================================================
+// Stream Message - Wrapper for all streaming message types
+// ============================================================================
+
+table StreamMessage {
+  // Message type
+  msg_type: MessageType;
+  
+  // Message sequence number
+  sequence: ulong;
+  
+  // Timestamp
+  timestamp: long;
+  
+  // Payload (one of the following)
+  proof_step: ProofStep = null;
+  graphics_frame: GraphicsFrame = null;
+  progress: ProgressUpdate = null;
+  
+  // Compression (if any)
+  compression: CompressionType = None;
+}
+
+enum MessageType : byte {
+  ProofStep,
+  GraphicsFrame,
+  Progress,
+  Heartbeat,
+  Control
+}
+
+enum CompressionType : byte {
+  None,
+  Zstd,
+  LZ4
+}
+
+// ============================================================================
+// Root table - Entry point for parsing
+// ============================================================================
+
+root_type StreamMessage;
+

@@ -25,7 +25,12 @@ wgpu = "0.19"
 arrow2 = { version = "0.17", features = ["io_ipc", "io_ipc_compression", "compute"] }
 
 # Shared memory
+# Shared memory
 memmap2 = "0.9"
+
+# FlatBuffers for streaming protocol
+flatbuffers = "25.12"
+flatk = "0.5"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }

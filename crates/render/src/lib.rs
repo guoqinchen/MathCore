@@ -5,7 +5,9 @@
 pub mod data;
 pub mod engine;
 pub mod pipeline;
+pub mod protocol;
 pub mod shm;
+pub mod stream;
 pub mod visualization;
 pub mod wgpu;
 pub mod window;
