@@ -6,6 +6,8 @@ members = [
     "crates/render",
     "crates/bridge",
     "crates/cli",
+    "crates/smt",
+    "crates/symbols",
 ]
 
 [workspace.package]
