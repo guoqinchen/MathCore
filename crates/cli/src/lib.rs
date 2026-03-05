@@ -128,7 +128,7 @@ pub fn run_compute(expression: &str, variables: &[String]) -> Result<String> {
         ));
     }
 
-    let result = mathcore_compute::compute(expression, &vars)
+    let result = mathkernel::compute(expression, &vars)
         .map_err(|e| Error::Execution(e.to_string()))?;
 
     Ok(format!("{}", result))
@@ -136,17 +136,17 @@ pub fn run_compute(expression: &str, variables: &[String]) -> Result<String> {
 
 /// Run the simplify command
 pub fn run_simplify(expression: &str) -> Result<String> {
-    let expr = mathcore_compute::parse(expression).map_err(|e| Error::Parse(e.to_string()))?;
+    let expr = mathkernel::parse(expression).map_err(|e| Error::Parse(e.to_string()))?;
 
     let simplified =
-        mathcore_compute::simplify(&expr).map_err(|e| Error::Execution(e.to_string()))?;
+        mathkernel::simplify(&expr).map_err(|e| Error::Execution(e.to_string()))?;
 
     Ok(simplified.to_string())
 }
 
 /// Run the diff command
 pub fn run_diff(expression: &str, var: &str) -> Result<String> {
-    let deriv = mathcore_compute::derivative(expression, var)
+    let deriv = mathkernel::derivative(expression, var)
         .map_err(|e| Error::Execution(e.to_string()))?;
 
     Ok(deriv)
@@ -168,7 +168,7 @@ pub fn run_integrate(
         Error::InvalidArgument("Upper bound (--to) is required for integration.".to_string())
     })?;
 
-    let result = mathcore_compute::numeric::integrate_expr_simpson(expression, var, from, to, n)
+    let result = mathkernel::numeric::integrate_expr_simpson(expression, var, from, to, n)
         .map_err(|e| Error::Execution(e.to_string()))?;
 
     Ok(format!("{}", result))
