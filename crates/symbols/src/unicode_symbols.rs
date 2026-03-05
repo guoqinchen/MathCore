@@ -1,5 +1,5 @@
 //! Unicode Math Symbols Module
-//! 
+//!
 //! Provides comprehensive Unicode math symbol support including:
 //! - Mathematical Alphanumeric Symbols (U+1D400–U+1D7FF)
 //! - Greek and Coptic letters
@@ -77,7 +77,7 @@ impl MathSymbol {
             latex_equivalent: None,
         })
     }
-    
+
     fn detect_block(cp: u32) -> UnicodeBlock {
         if UnicodeBlock::MathAlphanumeric.contains(cp) {
             UnicodeBlock::MathAlphanumeric
@@ -111,11 +111,11 @@ impl SymbolRegistry {
             by_name: HashMap::new(),
             by_latex: HashMap::new(),
         };
-        
+
         registry.init_builtin_symbols();
         registry
     }
-    
+
     fn init_builtin_symbols(&mut self) {
         // Greek letters (sample)
         let greek = vec![
@@ -169,14 +169,14 @@ impl SymbolRegistry {
             (0x03A8, "Psi", "Ψ"),
             (0x03A9, "Omega", "Ω"),
         ];
-        
+
         for (cp, name, _ch) in greek {
             if let Some(mut sym) = MathSymbol::new(cp, name, SymbolCategory::Letter) {
                 sym.latex_equivalent = Some(format!("\\{}", name));
                 self.register(sym);
             }
         }
-        
+
         // Mathematical operators (sample)
         let operators = vec![
             (0x2200, "forall", "∀"),
@@ -214,14 +214,14 @@ impl SymbolRegistry {
             (0x22C0, "land", "⋀"),
             (0x22C1, "lor", "⋁"),
         ];
-        
+
         for (cp, name, ch) in operators {
             if let Some(mut sym) = MathSymbol::new(cp, name, SymbolCategory::Operator) {
                 sym.latex_equivalent = Some(format!("\\{}", name));
                 self.register(sym);
             }
         }
-        
+
         // Arrows
         let arrows = vec![
             (0x2190, "leftarrow", "←"),
@@ -237,7 +237,7 @@ impl SymbolRegistry {
             (0x21D4, "Leftrightarrow", "⇔"),
             (0x21D5, "Updownarrow", "⇕"),
         ];
-        
+
         for (cp, name, _ch) in arrows {
             if let Some(mut sym) = MathSymbol::new(cp, name, SymbolCategory::Arrow) {
                 sym.latex_equivalent = Some(format!("\\{}", name));
@@ -245,35 +245,36 @@ impl SymbolRegistry {
             }
         }
     }
-    
+
     fn register(&mut self, symbol: MathSymbol) {
         let cp = symbol.codepoint;
         let name = symbol.name.clone();
-        
+
         self.by_codepoint.insert(cp, symbol.clone());
         self.by_name.insert(name, symbol.clone());
-        
+
         if let Some(ref latex) = symbol.latex_equivalent {
-            self.by_latex.insert(latex.trim_start_matches('\\').to_string(), symbol);
+            self.by_latex
+                .insert(latex.trim_start_matches('\\').to_string(), symbol);
         }
     }
-    
+
     /// Lookup by codepoint
     pub fn get_by_codepoint(&self, cp: u32) -> Option<&MathSymbol> {
         self.by_codepoint.get(&cp)
     }
-    
+
     /// Lookup by name
     pub fn get_by_name(&self, name: &str) -> Option<&MathSymbol> {
         self.by_name.get(name)
     }
-    
+
     /// Lookup by LaTeX command
     pub fn get_by_latex(&self, latex: &str) -> Option<&MathSymbol> {
         let key = latex.trim_start_matches('\\');
         self.by_latex.get(key)
     }
-    
+
     /// Get all symbols in a category
     pub fn get_by_category(&self, category: SymbolCategory) -> Vec<&MathSymbol> {
         self.by_codepoint
@@ -281,7 +282,7 @@ impl SymbolRegistry {
             .filter(|s| s.category == category)
             .collect()
     }
-    
+
     /// Get all symbols in a block
     pub fn get_by_block(&self, block: UnicodeBlock) -> Vec<&MathSymbol> {
         self.by_codepoint
@@ -300,7 +301,7 @@ impl Default for SymbolRegistry {
 /// Convert a Unicode math symbol to ASCII equivalent
 pub fn to_ascii(s: &str) -> Option<String> {
     let registry = SymbolRegistry::new();
-    
+
     for ch in s.chars() {
         let cp = ch as u32;
         if let Some(symbol) = registry.get_by_codepoint(cp) {
@@ -309,14 +310,14 @@ pub fn to_ascii(s: &str) -> Option<String> {
             }
         }
     }
-    
+
     None
 }
 
 /// Convert a Unicode math symbol to LaTeX
 pub fn to_latex(s: &str) -> Option<String> {
     let registry = SymbolRegistry::new();
-    
+
     let mut result = String::new();
     for ch in s.chars() {
         let cp = ch as u32;
@@ -330,56 +331,60 @@ pub fn to_latex(s: &str) -> Option<String> {
             result.push(ch);
         }
     }
-    
-    if result.is_empty() { None } else { Some(result) }
+
+    if result.is_empty() {
+        None
+    } else {
+        Some(result)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_greek_letters() {
         let registry = SymbolRegistry::new();
-        
+
         // Test lowercase Greek
         assert!(registry.get_by_name("alpha").is_some());
         assert!(registry.get_by_name("beta").is_some());
         assert!(registry.get_by_name("gamma").is_some());
-        
+
         // Test uppercase Greek
         assert!(registry.get_by_name("Alpha").is_some());
         assert!(registry.get_by_name("Beta").is_some());
-        
+
         // Test codepoint lookup
         assert!(registry.get_by_codepoint(0x03B1).is_some());
     }
-    
+
     #[test]
     fn test_operators() {
         let registry = SymbolRegistry::new();
-        
+
         assert!(registry.get_by_name("forall").is_some());
         assert!(registry.get_by_name("exists").is_some());
         assert!(registry.get_by_name("infty").is_some());
         assert!(registry.get_by_name("leq").is_some());
         assert!(registry.get_by_name("geq").is_some());
     }
-    
+
     #[test]
     fn test_latex_conversion() {
         let latex = to_latex("α + β");
         assert!(latex.is_some());
         assert!(latex.unwrap().contains("\\alpha"));
     }
-    
+
     #[test]
     fn test_category_filter() {
         let registry = SymbolRegistry::new();
-        
+
         let operators = registry.get_by_category(SymbolCategory::Operator);
         assert!(!operators.is_empty());
-        
+
         let letters = registry.get_by_category(SymbolCategory::Letter);
         assert!(!letters.is_empty());
     }

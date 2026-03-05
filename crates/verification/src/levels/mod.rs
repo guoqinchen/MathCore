@@ -12,8 +12,8 @@ pub use level1::Level1Numerical;
 pub use level2::Level2Inverse;
 pub use level3::Level3Symbolic;
 
-use crate::config::{VerificationLevel, VerificationError, VerificationStatus};
 use crate::certificate::VerificationCertificate;
+use crate::config::{VerificationError, VerificationLevel, VerificationStatus};
 
 pub trait VerificationStrategy {
     fn verify(&self, expression: &str) -> Result<VerificationCertificate, VerificationError>;
