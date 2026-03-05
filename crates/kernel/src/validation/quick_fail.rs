@@ -2,8 +2,8 @@
 use super::domain::DomainChecker;
 use super::parser::ParserValidator;
 use super::special::SpecialValueChecker;
-use super::type_check::TypeChecker;
 use super::type_check::Type;
+use super::type_check::TypeChecker;
 use super::types::*;
 
 pub struct QuickValidator {

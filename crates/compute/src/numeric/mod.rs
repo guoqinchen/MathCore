@@ -682,7 +682,6 @@ impl Default for NumericEngine {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

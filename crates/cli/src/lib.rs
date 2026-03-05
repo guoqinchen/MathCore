@@ -196,13 +196,13 @@ mod tests {
 
     #[test]
     fn test_parse_variable_invalid() {
-    #[test]
-    fn test_parse_variable_invalid() {
-        assert!(parse_variable("x").is_err());
-        // Empty name should be invalid
-        assert!(parse_variable("=3").is_err());
-        assert!("x=3=y".parse::<f64>().is_err()); // trailing part ignored
-    }
+        #[test]
+        fn test_parse_variable_invalid() {
+            assert!(parse_variable("x").is_err());
+            // Empty name should be invalid
+            assert!(parse_variable("=3").is_err());
+            assert!("x=3=y".parse::<f64>().is_err()); // trailing part ignored
+        }
         assert!(parse_variable("=3").is_err());
     }
 

@@ -2,11 +2,11 @@
 //!
 //! This crate provides GPU-based rendering using wgpu.
 
-pub mod camera;
-pub mod lighting;
 pub mod cache;
+pub mod camera;
 pub mod data;
 pub mod engine;
+pub mod lighting;
 pub mod parallel;
 pub mod pipeline;
 pub mod protocol;

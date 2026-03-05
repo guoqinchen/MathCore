@@ -3,10 +3,10 @@
 //! Provides publisher/subscriber patterns for streaming proof steps,
 //! graphics frames, and progress updates with flow control.
 
+use parking_lot::RwLock;
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
-use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
 /// Message types for streaming
@@ -133,7 +133,7 @@ impl BackpressureState {
         if *self.paused.read() {
             return false;
         }
-        
+
         let count = self.pending_count.load(Ordering::Acquire);
         count < self.config.max_pending
     }
@@ -144,13 +144,13 @@ impl BackpressureState {
         if self.try_acquire() {
             return true;
         }
-        
+
         // Signal window update periodically
         let window = self.window_counter.fetch_add(1, Ordering::AcqRel);
         if window % self.config.window_size == 0 {
             // Could emit backpressure event here
         }
-        
+
         self.try_acquire()
     }
 
@@ -221,18 +221,18 @@ impl StreamPublisher {
         if !self.state.acquire() {
             return Err(StreamError::Backpressure);
         }
-        
+
         self.state.mark_pending();
-        
+
         let subscribers = self.subscribers.read().clone();
-        
+
         // Try to send to all subscribers
         for tx in subscribers.iter() {
             let _ = tx.try_send(msg.clone());
         }
-        
+
         self.state.release();
-        
+
         Ok(())
     }
 
@@ -241,14 +241,14 @@ impl StreamPublisher {
         if !self.state.try_acquire() {
             return false;
         }
-        
+
         self.state.mark_pending();
-        
+
         let subscribers = self.subscribers.read().clone();
         for tx in subscribers {
             let _ = tx.try_send(msg.clone());
         }
-        
+
         true
     }
 
@@ -320,13 +320,13 @@ impl StreamSubscriber {
 pub enum StreamError {
     #[error("Backpressure: stream is full")]
     Backpressure,
-    
+
     #[error("Stream closed")]
     Closed,
-    
+
     #[error("Timeout waiting for backpressure")]
     Timeout,
-    
+
     #[error("Serialization error: {0}")]
     Serialization(String),
 }
@@ -383,15 +383,15 @@ mod tests {
             window_size: 2,
             timeout_ms: 100,
         };
-        
+
         let state = BackpressureState::new(config);
-        
+
         // Mark pending and release
         state.mark_pending();
         assert_eq!(state.pending(), 1);
         state.release();
         assert_eq!(state.pending(), 0);
-        
+
         // Test pause/resume
         assert!(!state.is_paused());
         state.pause();
@@ -400,46 +400,37 @@ mod tests {
         assert!(!state.is_paused());
     }
 
-
-
-
-
-
-
     #[test]
     fn test_publisher_subscriber() {
         let publisher = StreamPublisher::new(BackpressureConfig::default());
         let mut subscriber = publisher.subscribe(10);
-        
+
         // Publish a message
         publisher.publish(StreamMessage::Heartbeat).unwrap();
-        
+
         // Receive it
         let msg = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap()
-            .block_on(async {
-                subscriber.recv().await
-            });
-        
+            .block_on(async { subscriber.recv().await });
+
         assert!(matches!(msg, Some(StreamMessage::Heartbeat)));
     }
 
     #[test]
     fn test_stream_buffer() {
         let buffer = StreamBuffer::new(3);
-        
+
         buffer.push(StreamMessage::Heartbeat);
         buffer.push(StreamMessage::Heartbeat);
         buffer.push(StreamMessage::Heartbeat);
-        
+
         assert_eq!(buffer.len(), 3);
-        
+
         // Adding more should evict oldest
         buffer.push(StreamMessage::Heartbeat);
-        
+
         assert_eq!(buffer.len(), 3);
     }
 }
-

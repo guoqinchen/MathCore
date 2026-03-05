@@ -862,7 +862,6 @@ impl Default for SymbolicEngine {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

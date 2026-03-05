@@ -625,7 +625,10 @@ mod tests {
             cpu_time_used: 30,
             executions: 5,
         };
-        assert_eq!(quota.is_exceeded(&usage_exceeded), Some(ResourceType::Memory));
+        assert_eq!(
+            quota.is_exceeded(&usage_exceeded),
+            Some(ResourceType::Memory)
+        );
 
         let cpu_exceeded = ResourceUsage {
             memory_used: 50,

@@ -509,7 +509,11 @@ mod tests {
             precision: Some(256),
             timeout_ms: Some(5000),
             simplify: Some(true),
-            options: Some([("key".to_string(), "value".to_string())].into_iter().collect()),
+            options: Some(
+                [("key".to_string(), "value".to_string())]
+                    .into_iter()
+                    .collect(),
+            ),
         };
         assert_eq!(params.precision, Some(256));
         assert_eq!(params.timeout_ms, Some(5000));
@@ -672,10 +676,10 @@ mod tests {
             panic!("Expected Error payload");
         }
     }
-    }
+}
 
-    #[test]
-    fn test_performance_target() {
+#[test]
+fn test_performance_target() {
     fn test_performance_target() {
         let msg = ProtocolMessage::new(
             MsgPayload::Compute(ComputeRequest {

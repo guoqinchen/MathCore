@@ -176,10 +176,18 @@ mod tests {
         let buffer = ArrowBuffer::from_data("test", &data);
 
         // Write to IPC (placeholder)
-        let bytes: Vec<u8> = buffer.as_slice().iter().flat_map(|f| f.to_le_bytes()).collect();
+        let bytes: Vec<u8> = buffer
+            .as_slice()
+            .iter()
+            .flat_map(|f| f.to_le_bytes())
+            .collect();
         let mut writer = ArrowWriter::new();
         writer.write(&bytes);
-        let bytes: Vec<u8> = buffer.as_slice().iter().flat_map(|f| f.to_le_bytes()).collect();
+        let bytes: Vec<u8> = buffer
+            .as_slice()
+            .iter()
+            .flat_map(|f| f.to_le_bytes())
+            .collect();
         writer.write(&bytes);
 
         let ipc_data = writer.finalize();

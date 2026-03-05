@@ -1,5 +1,5 @@
 //! Verification Rule Engine Module
-//! 
+//!
 //! Provides rule-based verification using SMT solving.
 
 use serde::{Deserialize, Serialize};
@@ -71,7 +71,7 @@ impl VerificationRule {
             postconditions: Vec::new(),
         }
     }
-    
+
     /// Add a variable to the rule
     pub fn add_variable(&mut self, name: &str, sort: VarSort) {
         self.variables.push(RuleVar {
@@ -79,7 +79,7 @@ impl VerificationRule {
             sort,
         });
     }
-    
+
     /// Add a precondition
     pub fn add_precondition(&mut self, lhs: &str, op: ComparisonOp, rhs: &str) {
         self.preconditions.push(Condition {
@@ -88,7 +88,7 @@ impl VerificationRule {
             rhs: rhs.to_string(),
         });
     }
-    
+
     /// Add a postcondition
     pub fn add_postcondition(&mut self, lhs: &str, op: ComparisonOp, rhs: &str) {
         self.postconditions.push(Condition {
@@ -110,11 +110,11 @@ impl RuleContext {
             bindings: HashMap::new(),
         }
     }
-    
+
     pub fn bind(&mut self, name: &str, value: &str) {
         self.bindings.insert(name.to_string(), value.to_string());
     }
-    
+
     pub fn resolve(&self, name: &str) -> Option<&str> {
         self.bindings.get(name).map(|s| s.as_str())
     }
@@ -137,27 +137,27 @@ impl RuleEngine {
             rules: HashMap::new(),
         }
     }
-    
+
     /// Register a rule
     pub fn register(&mut self, rule: VerificationRule) {
         self.rules.insert(rule.name.clone(), rule);
     }
-    
+
     /// Get a rule by name
     pub fn get(&self, name: &str) -> Option<&VerificationRule> {
         self.rules.get(name)
     }
-    
+
     /// Check if all rules are satisfied
     pub fn check_rules(&self, context: &RuleContext) -> Result<Vec<String>, RuleError> {
         let mut violations = Vec::new();
-        
+
         for (name, rule) in &self.rules {
             // Check preconditions
             for pre in &rule.preconditions {
                 let lhs = context.resolve(&pre.lhs).unwrap_or(&pre.lhs);
                 let rhs = context.resolve(&pre.rhs).unwrap_or(&pre.rhs);
-                
+
                 let satisfied = match pre.op {
                     ComparisonOp::Eq => lhs == rhs,
                     ComparisonOp::Neq => lhs != rhs,
@@ -166,7 +166,7 @@ impl RuleEngine {
                     ComparisonOp::Gt => lhs > rhs,
                     ComparisonOp::Ge => lhs >= rhs,
                 };
-                
+
                 if !satisfied {
                     violations.push(format!(
                         "Rule '{}' precondition failed: {} {:?} {}",
@@ -174,12 +174,12 @@ impl RuleEngine {
                     ));
                 }
             }
-            
+
             // Check postconditions
             for post in &rule.postconditions {
                 let lhs = context.resolve(&post.lhs).unwrap_or(&post.lhs);
                 let rhs = context.resolve(&post.rhs).unwrap_or(&post.rhs);
-                
+
                 let satisfied = match post.op {
                     ComparisonOp::Eq => lhs == rhs,
                     ComparisonOp::Neq => lhs != rhs,
@@ -188,7 +188,7 @@ impl RuleEngine {
                     ComparisonOp::Gt => lhs > rhs,
                     ComparisonOp::Ge => lhs >= rhs,
                 };
-                
+
                 if !satisfied {
                     violations.push(format!(
                         "Rule '{}' postcondition failed: {} {:?} {}",
@@ -197,7 +197,7 @@ impl RuleEngine {
                 }
             }
         }
-        
+
         if violations.is_empty() {
             Ok(vec![])
         } else {
@@ -215,32 +215,32 @@ impl Default for RuleEngine {
 /// DSL for building rules
 pub mod dsl {
     use super::*;
-    
+
     pub fn rule(name: &str, description: &str) -> VerificationRule {
         VerificationRule::new(name, description)
     }
-    
+
     pub fn int_var(name: &str) -> RuleVar {
         RuleVar {
             name: name.to_string(),
             sort: VarSort::Int,
         }
     }
-    
+
     pub fn real_var(name: &str) -> RuleVar {
         RuleVar {
             name: name.to_string(),
             sort: VarSort::Real,
         }
     }
-    
+
     pub fn bool_var(name: &str) -> RuleVar {
         RuleVar {
             name: name.to_string(),
             sort: VarSort::Bool,
         }
     }
-    
+
     pub fn eq(lhs: &str, rhs: &str) -> Condition {
         Condition {
             lhs: lhs.to_string(),
@@ -248,7 +248,7 @@ pub mod dsl {
             rhs: rhs.to_string(),
         }
     }
-    
+
     pub fn neq(lhs: &str, rhs: &str) -> Condition {
         Condition {
             lhs: lhs.to_string(),
@@ -256,7 +256,7 @@ pub mod dsl {
             rhs: rhs.to_string(),
         }
     }
-    
+
     pub fn lt(lhs: &str, rhs: &str) -> Condition {
         Condition {
             lhs: lhs.to_string(),
@@ -264,7 +264,7 @@ pub mod dsl {
             rhs: rhs.to_string(),
         }
     }
-    
+
     pub fn gt(lhs: &str, rhs: &str) -> Condition {
         Condition {
             lhs: lhs.to_string(),
@@ -277,22 +277,22 @@ pub mod dsl {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_rule_creation() {
         use dsl::*;
-        
+
         let mut rule = rule("add_commute", "Addition is commutative");
         rule.add_variable("a", VarSort::Int);
         rule.add_variable("b", VarSort::Int);
         rule.add_precondition("a", ComparisonOp::Gt, "0");
         rule.add_precondition("b", ComparisonOp::Gt, "0");
         rule.add_postcondition("a + b", ComparisonOp::Eq, "b + a");
-        
+
         let mut context = RuleContext::new();
         context.bind("a", "5");
         context.bind("b", "3");
-        
+
         let engine = RuleEngine::new();
         let result = engine.check_rules(&context);
         assert!(result.is_ok());

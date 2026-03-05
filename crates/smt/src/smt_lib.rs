@@ -1,5 +1,5 @@
 //! SMT-LIB Interface Module
-//! 
+//!
 //! Provides SMT-LIB 2.6 compatible interface.
 
 use serde::{Deserialize, Serialize};
@@ -21,11 +21,24 @@ pub enum SmtCommand {
     /// Declare sort
     DeclareSort { symbol: String, arity: usize },
     /// Define sort
-    DefineSort { symbol: String, params: Vec<String>, sort: String },
+    DefineSort {
+        symbol: String,
+        params: Vec<String>,
+        sort: String,
+    },
     /// Declare function
-    DeclareFun { symbol: String, params: Vec<String>, sort: String },
+    DeclareFun {
+        symbol: String,
+        params: Vec<String>,
+        sort: String,
+    },
     /// Define function
-    DefineFun { symbol: String, params: Vec<VarDecl>, sort: String, body: String },
+    DefineFun {
+        symbol: String,
+        params: Vec<VarDecl>,
+        sort: String,
+        body: String,
+    },
     /// Assert
     Assert { term: String },
     /// Check sat
@@ -57,52 +70,65 @@ pub struct SmtScript {
 impl SmtScript {
     /// Create a new empty script
     pub fn new() -> Self {
-        Self { commands: Vec::new() }
+        Self {
+            commands: Vec::new(),
+        }
     }
-    
+
     /// Add a command to the script
     pub fn add_command(&mut self, cmd: SmtCommand) {
         self.commands.push(cmd);
     }
-    
+
     /// Convert to SMT-LIB string format
     pub fn to_smt_lib_string(&self) -> String {
         let mut output = String::new();
         output.push_str("(set-option :print-success true)\n");
         output.push_str("(set-option :produce-models true)\n");
-        
+
         for cmd in &self.commands {
             output.push_str(&self.command_to_string(cmd));
             output.push('\n');
         }
-        
+
         output
     }
-    
+
     fn command_to_string(&self, cmd: &SmtCommand) -> String {
         match cmd {
             SmtCommand::DeclareSort { symbol, arity } => {
                 format!("(declare-sort {} {})", symbol, arity)
             }
-            SmtCommand::DefineSort { symbol, params, sort } => {
+            SmtCommand::DefineSort {
+                symbol,
+                params,
+                sort,
+            } => {
                 if params.is_empty() {
                     format!("(define-sort {} {})", symbol, sort)
                 } else {
-                    format!("(define-sort ({} {}) {})", 
-                        symbol, 
-                        params.join(" "), 
-                        sort)
+                    format!("(define-sort ({} {}) {})", symbol, params.join(" "), sort)
                 }
             }
-            SmtCommand::DeclareFun { symbol, params, sort } => {
+            SmtCommand::DeclareFun {
+                symbol,
+                params,
+                sort,
+            } => {
                 if params.is_empty() {
                     format!("(declare-fun {} ( ) {})", symbol, sort)
                 } else {
                     format!("(declare-fun {} ({}) {})", symbol, params.join(" "), sort)
                 }
             }
-            SmtCommand::DefineFun { symbol, params, sort, body } => {
-                let params_str = params.iter()
+            SmtCommand::DefineFun {
+                symbol,
+                params,
+                sort,
+                body,
+            } => {
+                let params_str = params
+                    .iter()
                     .map(|p| format!("({} {})", p.name, p.sort))
                     .collect::<Vec<_>>()
                     .join(" ");
@@ -125,11 +151,11 @@ impl SmtScript {
             SmtCommand::Exit => "(exit)".to_string(),
         }
     }
-    
+
     /// Parse SMT-LIB string to script
     pub fn from_smt_lib_string(input: &str) -> Result<Self, SmtLibError> {
         let mut script = Self::new();
-        
+
         // Simple parser for demonstration
         // In production, use a proper parser
         for line in input.lines() {
@@ -137,7 +163,7 @@ impl SmtScript {
             if line.is_empty() || line.starts_with(';') {
                 continue;
             }
-            
+
             // Parse basic commands
             if line.contains("(check-sat)") {
                 script.add_command(SmtCommand::CheckSat);
@@ -158,7 +184,7 @@ impl SmtScript {
                 }
             }
         }
-        
+
         Ok(script)
     }
 }
@@ -190,7 +216,7 @@ impl SmtResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_script_creation() {
         let mut script = SmtScript::new();
@@ -203,13 +229,13 @@ mod tests {
             term: "(> x 0)".to_string(),
         });
         script.add_command(SmtCommand::CheckSat);
-        
+
         let output = script.to_smt_lib_string();
         assert!(output.contains("(declare-fun"));
         assert!(output.contains("(assert"));
         assert!(output.contains("(check-sat)"));
     }
-    
+
     #[test]
     fn test_script_parsing() {
         let input = r#"
@@ -219,8 +245,8 @@ mod tests {
             (check-sat)
             (pop 1)
         "#;
-        
+
         let script = SmtScript::from_smt_lib_string(input).unwrap();
         assert_eq!(script.commands.len(), 3);
-}
+    }
 }

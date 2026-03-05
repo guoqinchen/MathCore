@@ -35,7 +35,6 @@ pub use symbolic::{differentiate, evaluate, parse, simplify, Expr, SymbolicEngin
 // Re-export replay functions
 pub use replay::{ComputationStep, ComputationTrace, TraceBuilder, TraceReplayer};
 
-
 // Re-export numeric functions
 pub use numeric::{
     differentiate as numeric_differentiate, differentiate_expr, eval, eval_simple,
