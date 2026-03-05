@@ -795,7 +795,7 @@ mod benchmarks {
             msg.to_msgpack().unwrap()
         };
 
-        group.bench_function("small_message", |b| {
+        group.bench_function("small_message", |b: &mut criterion::Bencher| {
             b.iter(|| ProtocolMessage::from_msgpack(&small_bytes).unwrap())
         });
 
@@ -822,7 +822,7 @@ mod benchmarks {
             msg.to_msgpack().unwrap()
         };
 
-        group.bench_function("medium_message", |b| {
+        group.bench_function("medium_message", |b: &mut criterion::Bencher| {
             b.iter(|| ProtocolMessage::from_msgpack(&medium_bytes).unwrap())
         });
 
@@ -847,7 +847,7 @@ mod benchmarks {
             msg.to_msgpack().unwrap()
         };
 
-        group.bench_function("large_message", |b| {
+        group.bench_function("large_message", |b: &mut criterion::Bencher| {
             b.iter(|| ProtocolMessage::from_msgpack(&large_bytes).unwrap())
         });
 
@@ -865,7 +865,7 @@ mod benchmarks {
             1,
         );
 
-        group.bench_function("compute_request", |b| {
+        group.bench_function("compute_request", |b: &mut criterion::Bencher| {
             b.iter(|| {
                 let bytes = msg.to_msgpack().unwrap();
                 ProtocolMessage::from_msgpack(&bytes).unwrap()
