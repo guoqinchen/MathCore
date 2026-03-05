@@ -1,5 +1,5 @@
 [package]
-name = "mathcore-compute"
+name = "mathcore-calc"
 description = "MathCore compute plugins - symbolic, numeric, and external engines"
 version.workspace = true
 edition.workspace = true
