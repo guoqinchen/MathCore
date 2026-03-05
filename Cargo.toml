@@ -16,7 +16,8 @@ version = "0.1.0"
 edition = "2021"
 authors = ["MathCore Team <team@mathcore.dev>"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/mathcore/mathcore"
+repository = "https://github.com/guoqinchen/MathCore"
+homepage = "https://github.com/guoqinchen/MathCore"
 
 [workspace.dependencies]
 # Async runtime
