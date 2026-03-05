@@ -27,7 +27,7 @@ camino.workspace = true
 clap = { version = "4.5", features = ["derive"] }
 
 # Internal dependencies
-mathcore-calc = { path = "../compute" }
+mathkernel = { path = "../compute" }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
