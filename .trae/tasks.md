@@ -60,10 +60,10 @@
 - **Depends On**: Task 1, Task 2, Task 4
 - **Status**: Completed
 
-## [ ] Task 13: 完善 CI/CD 配置
+## [x] Task 13: 完善 CI/CD 配置
 - **Priority**: P2
 - **Depends On**: Task 1
-- **Status**: Pending
+- **Status**: Completed
 
 ## [ ] Task 14: 实现自动化的文档生成
 - **Priority**: P2
