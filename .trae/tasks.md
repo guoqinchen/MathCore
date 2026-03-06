@@ -65,10 +65,10 @@
 - **Depends On**: Task 1
 - **Status**: Completed
 
-## [ ] Task 14: 实现自动化的文档生成
+## [x] Task 14: 实现自动化的文档生成
 - **Priority**: P2
 - **Depends On**: Task 9
-- **Status**: Pending
+- **Status**: Completed
 
 ## [ ] Task 15: 建立代码审查流程
 - **Priority**: P2
