@@ -70,7 +70,7 @@
 - **Depends On**: Task 9
 - **Status**: Completed
 
-## [ ] Task 15: 建立代码审查流程
+## [x] Task 15: 建立代码审查流程
 - **Priority**: P2
 - **Depends On**: None
-- **Status**: Pending
+- **Status**: Completed
