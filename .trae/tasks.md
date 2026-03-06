@@ -45,10 +45,10 @@
 - **Depends On**: Task 1, Task 4
 - **Status**: Completed
 
-## [ ] Task 10: 增加边缘情况的测试用例
+## [x] Task 10: 增加边缘情况的测试用例
 - **Priority**: P2
 - **Depends On**: Task 1, Task 3, Task 4
-- **Status**: Pending
+- **Status**: Completed
 
 ## [ ] Task 11: 完善性能测试覆盖
 - **Priority**: P2

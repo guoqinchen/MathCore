@@ -400,18 +400,13 @@ def main():
         print(f"\n下一个待执行任务:")
         task_manager.print_task_info(next_task)
         
-        # 确认是否执行
-        while True:
-            choice = input("\n是否执行该任务? (y/n): ").strip().lower()
-            if choice in ['y', 'yes']:
-                # 执行任务
-                success = task_manager.execute_task(next_task)
-                break
-            elif choice in ['n', 'no']:
-                print("取消任务执行")
-                break
-            else:
-                print("无效输入，请输入 y 或 n")
+        # 自动执行任务，无需用户交互
+        print("\n自动执行任务...")
+        success = task_manager.execute_task(next_task)
+        if success:
+            print("任务执行成功")
+        else:
+            print("任务执行失败")
     else:
         print("\n所有任务已完成或无可执行任务")
         
