@@ -25,25 +25,25 @@
 - **Depends On**: Task 1
 - **Status**: Completed
 
-## [ ] Task 6: 实现完整的 seccomp 系统调用白名单
+## [x] Task 6: 实现完整的 seccomp 系统调用白名单
 - **Priority**: P1
 - **Depends On**: Task 3
-- **Status**: Pending
+- **Status**: Completed
 
-## [ ] Task 7: 增加 cgroups 资源隔离机制
+## [x] Task 7: 增加 cgroups 资源隔离机制
 - **Priority**: P1
 - **Depends On**: Task 3
-- **Status**: Pending
+- **Status**: Completed
 
-## [ ] Task 8: 更新各阶段任务文档
+## [x] Task 8: 更新各阶段任务文档
 - **Priority**: P1
 - **Depends On**: None
-- **Status**: Pending
+- **Status**: Completed
 
-## [ ] Task 9: 编写详细的 API 文档和使用教程
+## [x] Task 9: 编写详细的 API 文档和使用教程
 - **Priority**: P1
 - **Depends On**: Task 1, Task 4
-- **Status**: Pending
+- **Status**: Completed
 
 ## [ ] Task 10: 增加边缘情况的测试用例
 - **Priority**: P2
