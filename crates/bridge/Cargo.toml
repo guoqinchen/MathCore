@@ -20,5 +20,12 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 once_cell.workspace = true
 
+# Python bindings
+pyo3 = { version = "0.21", features = ["extension-module"], optional = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
+
+[features]
+default = []
+pyo3 = ["dep:pyo3"]

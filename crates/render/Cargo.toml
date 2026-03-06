@@ -46,7 +46,7 @@ lru = "0.12"
 moka = { version = "0.12", features = ["sync"] }
 
 # Internal dependencies
-mathkernel = { path = "../compute" }
+mathcore-compute = { path = "../compute" }
 
 
 [dev-dependencies]

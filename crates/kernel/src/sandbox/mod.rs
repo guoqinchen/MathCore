@@ -3,6 +3,9 @@
 use crate::error::{ErrorKind, MathCoreError};
 use std::collections::HashSet;
 
+#[cfg(target_os = "linux")]
+use seccomp::{Seccomp, Action, Rule};
+
 /// Sandbox configuration
 #[derive(Debug, Clone)]
 pub struct SandboxConfig {
@@ -43,15 +46,38 @@ pub struct ExecutionResult {
 pub trait SandboxTrait {
     fn execute(&self, code: &[u8]) -> Result<ExecutionResult, MathCoreError>;
     fn get_memory_usage(&self) -> u64;
+    
+    /// Initialize seccomp filter with allowed syscalls
+    #[cfg(target_os = "linux")]
+    fn init_seccomp(&mut self) -> Result<(), MathCoreError>;
+    
+    /// Check if seccomp is initialized
+    #[cfg(target_os = "linux")]
+    fn is_seccomp_initialized(&self) -> bool;
 }
 
 /// Sandbox implementation
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Sandbox {
     active: bool,
     config: SandboxConfig,
     memory_usage: u64,
     total_time: u64,
+    #[cfg(target_os = "linux")]
+    seccomp_filter: Option<Seccomp>,
+}
+
+impl Clone for Sandbox {
+    fn clone(&self) -> Self {
+        Self {
+            active: self.active,
+            config: self.config.clone(),
+            memory_usage: self.memory_usage,
+            total_time: self.total_time,
+            #[cfg(target_os = "linux")]
+            seccomp_filter: None, // Seccomp filter cannot be cloned, create a new one
+        }
+    }
 }
 
 impl Sandbox {
@@ -61,6 +87,8 @@ impl Sandbox {
             config: SandboxConfig::default(),
             memory_usage: 0,
             total_time: 0,
+            #[cfg(target_os = "linux")]
+            seccomp_filter: None,
         }
     }
 
@@ -70,6 +98,8 @@ impl Sandbox {
             config,
             memory_usage: 0,
             total_time: 0,
+            #[cfg(target_os = "linux")]
+            seccomp_filter: None,
         }
     }
 
@@ -83,13 +113,40 @@ impl Sandbox {
                 "Empty code".to_string(),
             )));
         }
-        Ok(ExecutionResult {
+
+        // Apply seccomp filter if enabled
+        #[cfg(target_os = "linux")]
+        if self.config.seccomp_enabled && self.seccomp_filter.is_none() {
+            tracing::warn!("Seccomp is enabled but not initialized");
+            return Err(MathCoreError::new(ErrorKind::SandboxError(
+                "Seccomp filter not initialized".to_string(),
+            )));
+        }
+
+        // Check resource limits
+        if self.memory_usage > self.config.max_memory {
+            return Ok(ExecutionResult {
+                exit_code: -1,
+                stdout: b"".to_vec(),
+                stderr: b"Memory limit exceeded".to_vec(),
+                killed: true,
+                kill_reason: Some("Memory limit exceeded".to_string()),
+            });
+        }
+
+        // Execute code
+        let result = ExecutionResult {
             exit_code: 0,
             stdout: b"Executed".to_vec(),
             stderr: b"".to_vec(),
             killed: false,
             kill_reason: None,
-        })
+        };
+
+        // Update resource usage
+        // TODO: Implement actual resource usage tracking
+
+        Ok(result)
     }
 
     pub fn get_memory_usage(&self) -> u64 {
@@ -98,6 +155,49 @@ impl Sandbox {
 
     pub fn get_total_execution_time(&self) -> u64 {
         self.total_time
+    }
+
+    /// Initialize seccomp filter with allowed syscalls
+    #[cfg(target_os = "linux")]
+    pub fn init_seccomp(&mut self) -> Result<(), MathCoreError> {
+        if !self.config.seccomp_enabled {
+            return Ok(());
+        }
+
+        tracing::debug!("Initializing seccomp filter with allowed syscalls: {:?}", self.config.allowed_syscalls);
+        
+        // Create a new seccomp filter with default action to kill
+        let mut seccomp = Seccomp::new(Action::Kill)?;
+        
+        // Allow basic syscalls that most programs need
+        let default_allowed = vec!["read", "write", "exit", "exit_group", "nanosleep"];
+        
+        // Add default allowed syscalls
+        for syscall in default_allowed {
+            if let Ok(rule) = Rule::new(syscall, Action::Allow) {
+                seccomp.add_rule(rule)?;
+            }
+        }
+        
+        // Add user-specified allowed syscalls
+        for syscall in &self.config.allowed_syscalls {
+            if let Ok(rule) = Rule::new(syscall, Action::Allow) {
+                seccomp.add_rule(rule)?;
+            }
+        }
+        
+        // Load the filter
+        seccomp.load()?;
+        
+        // Store the seccomp filter
+        self.seccomp_filter = Some(seccomp);
+        Ok(())
+    }
+
+    /// Check if seccomp is initialized
+    #[cfg(target_os = "linux")]
+    pub fn is_seccomp_initialized(&self) -> bool {
+        self.seccomp_filter.is_some()
     }
 }
 
@@ -114,6 +214,16 @@ impl SandboxTrait for Sandbox {
 
     fn get_memory_usage(&self) -> u64 {
         Sandbox::get_memory_usage(self)
+    }
+    
+    #[cfg(target_os = "linux")]
+    fn init_seccomp(&mut self) -> Result<(), MathCoreError> {
+        Sandbox::init_seccomp(self)
+    }
+    
+    #[cfg(target_os = "linux")]
+    fn is_seccomp_initialized(&self) -> bool {
+        Sandbox::is_seccomp_initialized(self)
     }
 }
 
@@ -210,5 +320,42 @@ mod tests {
         let sandbox = Sandbox::new();
         let result = SandboxTrait::execute(&sandbox, b"test").unwrap();
         assert_eq!(result.exit_code, 0);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_seccomp_initialization() {
+        let mut config = SandboxConfig::default();
+        config.seccomp_enabled = true;
+        let mut sandbox = Sandbox::with_config(config);
+        
+        // Initialize seccomp
+        let result = sandbox.init_seccomp();
+        assert!(result.is_ok());
+        
+        // Check if seccomp is initialized
+        assert!(sandbox.is_seccomp_initialized());
+    }
+
+    #[test]
+    fn test_resource_limit_memory() {
+        let mut config = SandboxConfig::default();
+        config.max_memory = 100;
+        
+        // Create a sandbox with memory usage exceeding the limit
+        let sandbox = Sandbox {
+            active: true,
+            config,
+            memory_usage: 200, // Exceed the limit
+            total_time: 0,
+            #[cfg(target_os = "linux")]
+            seccomp_filter: None,
+        };
+        
+        let result = sandbox.execute(b"test");
+        assert!(result.is_ok());
+        let execution_result = result.unwrap();
+        assert!(execution_result.killed);
+        assert_eq!(execution_result.kill_reason, Some("Memory limit exceeded".to_string()));
     }
 }

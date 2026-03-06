@@ -340,6 +340,11 @@ impl Parser {
 
 /// Parse a string into an expression
 pub fn parse(input: &str) -> Result<Expr, Error> {
+    // Check if expression is already in cache
+    if let Some(expr) = crate::cache::EXPRESSION_CACHE.get_parsed(input) {
+        return Ok(expr);
+    }
+
     let mut parser = Parser::new(input);
     let expr = parser.parse_expression()?;
 
@@ -350,12 +355,23 @@ pub fn parse(input: &str) -> Result<Expr, Error> {
         ));
     }
 
+    // Cache the parsed expression
+    crate::cache::EXPRESSION_CACHE.cache_parsed(input, expr.clone());
+
     Ok(expr)
 }
 
 /// Simplify an expression
 pub fn simplify(expr: &Expr) -> Result<Expr, Error> {
-    match expr {
+    // Convert expression to string for caching
+    let expr_str = expr.to_string();
+    
+    // Check if simplified expression is already in cache
+    if let Some(simplified_str) = crate::cache::EXPRESSION_CACHE.get_simplified(&expr_str) {
+        return parse(&simplified_str);
+    }
+
+    let result = match expr {
         // Constants simplify to themselves
         Expr::Const(_) => Ok(expr.clone()),
 
@@ -574,12 +590,28 @@ pub fn simplify(expr: &Expr) -> Result<Expr, Error> {
             }
             Ok(Expr::Exp(Box::new(inner)))
         }
+    };
+
+    // Cache the simplified expression
+    if let Ok(simplified) = &result {
+        let simplified_str = simplified.to_string();
+        crate::cache::EXPRESSION_CACHE.cache_simplified(&expr_str, simplified_str);
     }
+
+    result
 }
 
 /// Differentiate an expression with respect to a variable
 pub fn differentiate(expr: &Expr, var: &str) -> Result<Expr, Error> {
-    match expr {
+    // Convert expression to string for caching
+    let expr_str = expr.to_string();
+    
+    // Check if derivative is already in cache
+    if let Some(deriv) = crate::cache::EXPRESSION_CACHE.get_derivative(&expr_str, var) {
+        return Ok(deriv);
+    }
+
+    let result = match expr {
         // d/dx(c) = 0
         Expr::Const(_) => Ok(Expr::Const(0.0)),
 
@@ -718,7 +750,14 @@ pub fn differentiate(expr: &Expr, var: &str) -> Result<Expr, Error> {
             let exp_e = Expr::Exp(Box::new((**e).clone()));
             Ok(Expr::Mul(Box::new(exp_e), Box::new(de)))
         }
+    };
+
+    // Cache the derivative result
+    if let Ok(deriv) = &result {
+        crate::cache::EXPRESSION_CACHE.cache_derivative(&expr_str, var, deriv.clone());
     }
+
+    result
 }
 
 /// Check if expression contains a variable

@@ -12,13 +12,13 @@ thiserror = "1.0"
 
 # Internal dependencies
 mathcore-kernel = { path = "../kernel" }
-mathkernel = { path = "../compute" }
+mathcore-compute = { path = "../compute" }
 mathcore-smt = { path = "../smt" }
 mathcore-symbols = { path = "../symbols" }
 
 [dev-dependencies]
 mathcore-kernel = { path = "../kernel" }
-mathkernel = { path = "../compute" }
+mathcore-compute = { path = "../compute" }
 
 [features]
 default = []

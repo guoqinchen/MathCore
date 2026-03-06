@@ -16,7 +16,7 @@ tracing-subscriber = "0.3"
 
 # Internal dependencies
 mathcore-kernel = { path = "../kernel" }
-mathkernel = { path = "../compute" }
+mathcore-compute = { path = "../compute" }
 mathcore-symbols = { path = "../symbols" }
 
 [dev-dependencies]

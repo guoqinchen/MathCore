@@ -160,11 +160,11 @@ pub struct CacheStats {
 /// Expression cache for symbolic computation
 pub struct ExpressionCache {
     // Cache for parsed expressions (string -> AST)
-    parsed: L1Cache<String, Expr>,
+    parsed: parking_lot::RwLock<L1Cache<String, Expr>>,
     // Cache for simplified expressions
-    simplified: L1Cache<String, String>,
+    simplified: parking_lot::RwLock<L1Cache<String, String>>,
     // Cache for derivative results
-    derivatives: L1Cache<DerivativeKey, Expr>,
+    derivatives: parking_lot::RwLock<L1Cache<DerivativeKey, Expr>>,
 }
 
 /// Key for derivative cache
@@ -178,30 +178,30 @@ impl ExpressionCache {
     /// Create a new expression cache
     pub fn new(parsed_capacity: usize, simplified_capacity: usize, ttl_secs: u64) -> Self {
         Self {
-            parsed: L1Cache::new(parsed_capacity, ttl_secs),
-            simplified: L1Cache::new(simplified_capacity, ttl_secs),
-            derivatives: L1Cache::new(simplified_capacity * 2, ttl_secs),
+            parsed: parking_lot::RwLock::new(L1Cache::new(parsed_capacity, ttl_secs)),
+            simplified: parking_lot::RwLock::new(L1Cache::new(simplified_capacity, ttl_secs)),
+            derivatives: parking_lot::RwLock::new(L1Cache::new(simplified_capacity * 2, ttl_secs)),
         }
     }
 
     /// Get cached parsed expression
     pub fn get_parsed(&self, expr: &str) -> Option<Expr> {
-        self.parsed.get(expr)
+        self.parsed.read().get(expr)
     }
 
     /// Cache parsed expression
-    pub fn cache_parsed(&mut self, expr: &str, ast: Expr) {
-        self.parsed.insert(expr.to_string(), ast);
+    pub fn cache_parsed(&self, expr: &str, ast: Expr) {
+        self.parsed.write().insert(expr.to_string(), ast);
     }
 
     /// Get cached simplified expression
     pub fn get_simplified(&self, expr: &str) -> Option<String> {
-        self.simplified.get(expr)
+        self.simplified.read().get(expr)
     }
 
     /// Cache simplified expression
-    pub fn cache_simplified(&mut self, expr: &str, simplified: String) {
-        self.simplified.insert(expr.to_string(), simplified);
+    pub fn cache_simplified(&self, expr: &str, simplified: String) {
+        self.simplified.write().insert(expr.to_string(), simplified);
     }
 
     /// Get cached derivative
@@ -210,31 +210,31 @@ impl ExpressionCache {
             expression: expr.to_string(),
             variable: var.to_string(),
         };
-        self.derivatives.get(&key)
+        self.derivatives.read().get(&key)
     }
 
     /// Cache derivative result
-    pub fn cache_derivative(&mut self, expr: &str, var: &str, deriv: Expr) {
+    pub fn cache_derivative(&self, expr: &str, var: &str, deriv: Expr) {
         let key = DerivativeKey {
             expression: expr.to_string(),
             variable: var.to_string(),
         };
-        self.derivatives.insert(key, deriv);
+        self.derivatives.write().insert(key, deriv);
     }
 
     /// Clear all caches
-    pub fn clear(&mut self) {
-        self.parsed.clear();
-        self.simplified.clear();
-        self.derivatives.clear();
+    pub fn clear(&self) {
+        self.parsed.write().clear();
+        self.simplified.write().clear();
+        self.derivatives.write().clear();
     }
 
     /// Get statistics
     pub fn stats(&self) -> ExpressionCacheStats {
         ExpressionCacheStats {
-            parsed: self.parsed.stats(),
-            simplified: self.simplified.stats(),
-            derivatives: self.derivatives.stats(),
+            parsed: self.parsed.read().stats(),
+            simplified: self.simplified.read().stats(),
+            derivatives: self.derivatives.read().stats(),
         }
     }
 }
