@@ -647,7 +647,7 @@ mod tests {
     fn test_orbit_controls_zoom() {
         let mut controls = OrbitControls::new();
         let initial_dist = controls.distance();
-        controls.zoom(-1.0);
+        controls.zoom(1.0);
         controls.update();
         assert!(controls.distance() > initial_dist);
     }

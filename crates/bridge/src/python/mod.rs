@@ -8,6 +8,9 @@ pub enum Error {
 
     #[error("Import error: {0}")]
     Import(String),
+
+    #[error("Compute error: {0}")]
+    Compute(String),
 }
 
 /// Python bridge
@@ -28,6 +31,21 @@ impl PythonBridge {
     pub fn compute(&self, expression: &str) -> Result<String, Error> {
         Ok(expression.to_string())
     }
+
+    /// Simplify an expression
+    pub fn simplify(&self, expression: &str) -> Result<String, Error> {
+        Ok(expression.to_string())
+    }
+
+    /// Compute derivative
+    pub fn derivative(&self, expression: &str, var: &str) -> Result<String, Error> {
+        Ok(format!("d/d{var}({expression})"))
+    }
+
+    /// Compute integral
+    pub fn integral(&self, expression: &str, var: &str) -> Result<String, Error> {
+        Ok(format!("∫{expression}d{var}"))
+    }
 }
 
 impl Default for PythonBridge {
@@ -37,36 +55,62 @@ impl Default for PythonBridge {
 }
 
 /// MathEngine Python class
-struct MathEngine {
+#[cfg(feature = "pyo3")]
+use pyo3::prelude::*;
+
+#[cfg(feature = "pyo3")]
+#[pyclass(name="MathEngine")]
+pub struct PyMathEngine {
     bridge: PythonBridge,
 }
 
-impl MathEngine {
+#[cfg(feature = "pyo3")]
+#[pymethods]
+impl PyMathEngine {
+    #[new]
     fn new() -> Self {
         Self {
             bridge: PythonBridge::new(),
         }
     }
 
-    fn evaluate(&self, expression: &str) -> Result<String, Error> {
-        self.bridge.evaluate(expression)
+    #[pyo3(name="evaluate")]
+    fn py_evaluate(&self, expression: &str) -> PyResult<String> {
+        self.bridge.evaluate(expression).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
 
-    fn compute(&self, expression: &str) -> Result<String, Error> {
-        self.bridge.compute(expression)
+    #[pyo3(name="compute")]
+    fn py_compute(&self, expression: &str) -> PyResult<String> {
+        self.bridge.compute(expression).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
 
-    fn simplify(&self, expression: &str) -> String {
-        expression.to_string()
+    #[pyo3(name="simplify")]
+    fn py_simplify(&self, expression: &str) -> PyResult<String> {
+        self.bridge.simplify(expression).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
 
-    fn derivative(&self, expression: &str, var: Option<&str>) -> String {
+    #[pyo3(name="derivative")]
+    fn py_derivative(&self, expression: &str, var: Option<&str>) -> PyResult<String> {
         let var = var.unwrap_or("x");
-        format!("d/d{var}({expression})")
+        self.bridge.derivative(expression, var).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
 
-    fn integral(&self, expression: &str, var: Option<&str>) -> String {
+    #[pyo3(name="integral")]
+    fn py_integral(&self, expression: &str, var: Option<&str>) -> PyResult<String> {
         let var = var.unwrap_or("x");
-        format!("∫{expression}d{var}")
+        self.bridge.integral(expression, var).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
+}
+
+/// Python module definition
+#[cfg(feature = "pyo3")]
+#[pymodule]
+pub fn mathcore_bridge(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    m.add_class::<PyMathEngine>()?;
+    Ok(())
+}
+
+#[cfg(not(feature = "pyo3"))]
+pub fn mathcore_bridge() {
+    // PyO3 not enabled, do nothing
 }

@@ -165,6 +165,8 @@ pub struct ExpressionCache {
     simplified: parking_lot::RwLock<L1Cache<String, String>>,
     // Cache for derivative results
     derivatives: parking_lot::RwLock<L1Cache<DerivativeKey, Expr>>,
+    // Cache for integral results
+    integrals: parking_lot::RwLock<L1Cache<DerivativeKey, Expr>>,
 }
 
 /// Key for derivative cache
@@ -181,6 +183,7 @@ impl ExpressionCache {
             parsed: parking_lot::RwLock::new(L1Cache::new(parsed_capacity, ttl_secs)),
             simplified: parking_lot::RwLock::new(L1Cache::new(simplified_capacity, ttl_secs)),
             derivatives: parking_lot::RwLock::new(L1Cache::new(simplified_capacity * 2, ttl_secs)),
+            integrals: parking_lot::RwLock::new(L1Cache::new(simplified_capacity * 2, ttl_secs)),
         }
     }
 
@@ -222,11 +225,30 @@ impl ExpressionCache {
         self.derivatives.write().insert(key, deriv);
     }
 
+    /// Get cached integral
+    pub fn get_integral(&self, expr: &str, var: &str) -> Option<Expr> {
+        let key = DerivativeKey {
+            expression: expr.to_string(),
+            variable: var.to_string(),
+        };
+        self.integrals.read().get(&key)
+    }
+
+    /// Cache integral result
+    pub fn cache_integral(&self, expr: &str, var: &str, integral: Expr) {
+        let key = DerivativeKey {
+            expression: expr.to_string(),
+            variable: var.to_string(),
+        };
+        self.integrals.write().insert(key, integral);
+    }
+
     /// Clear all caches
     pub fn clear(&self) {
         self.parsed.write().clear();
         self.simplified.write().clear();
         self.derivatives.write().clear();
+        self.integrals.write().clear();
     }
 
     /// Get statistics
@@ -235,6 +257,7 @@ impl ExpressionCache {
             parsed: self.parsed.read().stats(),
             simplified: self.simplified.read().stats(),
             derivatives: self.derivatives.read().stats(),
+            integrals: self.integrals.read().stats(),
         }
     }
 }
@@ -245,6 +268,7 @@ pub struct ExpressionCacheStats {
     pub parsed: CacheStats,
     pub simplified: CacheStats,
     pub derivatives: CacheStats,
+    pub integrals: CacheStats,
 }
 
 /// Precomputation cache for expensive operations
