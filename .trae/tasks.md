@@ -55,10 +55,10 @@
 - **Depends On**: Task 1, Task 5
 - **Status**: Completed
 
-## [ ] Task 12: 增加集成测试
+## [x] Task 12: 增加集成测试
 - **Priority**: P2
 - **Depends On**: Task 1, Task 2, Task 4
-- **Status**: Pending
+- **Status**: Completed
 
 ## [ ] Task 13: 完善 CI/CD 配置
 - **Priority**: P2
