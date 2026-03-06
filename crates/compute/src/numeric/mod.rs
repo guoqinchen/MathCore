@@ -132,13 +132,14 @@ impl Lexer {
 }
 
 /// Simple recursive descent parser for numeric expressions
-struct Parser {
+struct Parser<'a> {
     tokens: Vec<Token>,
     pos: usize,
+    vars: &'a HashMap<String, f64>,
 }
 
-impl Parser {
-    fn new(input: &str) -> Self {
+impl<'a> Parser<'a> {
+    fn new(input: &str, vars: &'a HashMap<String, f64>) -> Self {
         let mut lexer = Lexer::new(input);
         let mut tokens = Vec::new();
         loop {
@@ -149,7 +150,7 @@ impl Parser {
             tokens.push(tok);
         }
         tokens.push(Token::Eof);
-        Self { tokens, pos: 0 }
+        Self { tokens, pos: 0, vars }
     }
 
     fn peek(&self) -> &Token {
@@ -298,11 +299,16 @@ impl Parser {
                         }
                     }
                     _ => {
-                        // Handle constants like pi and e
-                        match name.as_str() {
-                            "pi" => Ok(PI),
-                            "e" => Ok(E),
-                            _ => Err(Error::Parse(format!("Unknown identifier: {}", name))),
+                        // First check if it's a variable in the vars map
+                        if let Some(&value) = self.vars.get(&name) {
+                            Ok(value)
+                        } else {
+                            // Handle constants like pi and e
+                            match name.as_str() {
+                                "pi" => Ok(PI),
+                                "e" => Ok(E),
+                                _ => Err(Error::Parse(format!("Unknown identifier: {}", name))),
+                            }
                         }
                     }
                 }
@@ -320,14 +326,7 @@ impl Parser {
 
 /// Parse and evaluate an expression string with variable bindings
 pub fn eval(input: &str, vars: &HashMap<String, f64>) -> Result<f64, Error> {
-    let mut processed = input.to_string();
-    for (name, value) in vars {
-        let pattern = format!(r"\b{}\b", name);
-        let re = regex_lite::Regex::new(&pattern).map_err(|e| Error::Parse(e.to_string()))?;
-        processed = re.replace_all(&processed, value.to_string()).to_string();
-    }
-
-    let mut parser = Parser::new(&processed);
+    let mut parser = Parser::new(input, vars);
     let result = parser.expression()?;
 
     if !matches!(parser.peek(), Token::Eof) {

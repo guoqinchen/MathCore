@@ -12,7 +12,7 @@ if __name__ == "__main__":
         rust_extensions=[
             RustExtension(
                 "mathcore.mathcore_bridge",
-                path="../Cargo.toml",
+                path="../crates/bridge/Cargo.toml",
                 features=["pyo3"],
             ),
         ],

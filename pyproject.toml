@@ -63,7 +63,7 @@ Issues = "https://github.com/mathcore/mathcore/issues"
 mathcore = "mathcore.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["py"]
 include = ["mathcore*"]
 
 [tool.setuptools.package-data]

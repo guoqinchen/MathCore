@@ -5,25 +5,25 @@
 - **Depends On**: None
 - **Status**: Completed
 
-## [ ] Task 2: 完善零拷贝数据平面的实现
+## [x] Task 2: 完善零拷贝数据平面的实现
 - **Priority**: P1
 - **Depends On**: Task 1
-- **Status**: Pending
+- **Status**: Completed
 
 ## [x] Task 3: 完善 Sandbox 模块的 seccomp 功能实现
 - **Priority**: P0
 - **Depends On**: None
 - **Status**: Completed
 
-## [/] Task 4: 增强 Python 绑定的实现
+## [x] Task 4: 增强 Python 绑定的实现
 - **Priority**: P0
 - **Depends On**: Task 1
-- **Status**: In Progress
+- **Status**: Completed
 
-## [ ] Task 5: 优化符号计算和数值计算的性能
+## [x] Task 5: 优化符号计算和数值计算的性能
 - **Priority**: P0
 - **Depends On**: Task 1
-- **Status**: Pending
+- **Status**: Completed
 
 ## [ ] Task 6: 实现完整的 seccomp 系统调用白名单
 - **Priority**: P1

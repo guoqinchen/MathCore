@@ -40,7 +40,7 @@ pub struct L1Cache<K, V> {
 struct CacheEntry<V> {
     value: V,
     created: Instant,
-    access_count: u64,
+    access_count: AtomicU64,
 }
 
 impl<K: Eq + std::hash::Hash + Clone, V: Clone> L1Cache<K, V> {
@@ -65,6 +65,7 @@ impl<K: Eq + std::hash::Hash + Clone, V: Clone> L1Cache<K, V> {
             if entry.created.elapsed() < self.ttl {
                 self.hits.fetch_add(1, Ordering::Relaxed);
                 // Update access count
+                entry.access_count.fetch_add(1, Ordering::Relaxed);
                 return Some(entry.value.clone());
             }
         }
@@ -84,7 +85,7 @@ impl<K: Eq + std::hash::Hash + Clone, V: Clone> L1Cache<K, V> {
             CacheEntry {
                 value,
                 created: Instant::now(),
-                access_count: 0,
+                access_count: AtomicU64::new(0),
             },
         );
     }
@@ -136,13 +137,23 @@ impl<K: Eq + std::hash::Hash + Clone, V: Clone> L1Cache<K, V> {
 
     /// Evict least recently used entry
     fn evict_lru(&mut self) {
-        if let Some(oldest_key) = self
+        if let Some(lru_key) = self
             .data
             .iter()
-            .min_by_key(|(_, e)| e.created)
+            .min_by(|(_, e1), (_, e2)| {
+                // First compare access count (lower first)
+                let count1 = e1.access_count.load(Ordering::Relaxed);
+                let count2 = e2.access_count.load(Ordering::Relaxed);
+                let count_cmp = count1.cmp(&count2);
+                if count_cmp != std::cmp::Ordering::Equal {
+                    return count_cmp;
+                }
+                // If same count, evict older entry
+                e1.created.cmp(&e2.created)
+            })
             .map(|(k, _)| k.clone())
         {
-            self.data.remove(&oldest_key);
+            self.data.remove(&lru_key);
         }
     }
 }
