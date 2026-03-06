@@ -215,11 +215,113 @@ impl DataPlane {
             .map(|b| b.batch.num_rows() * b.batch.num_columns() * 8)
             .sum()
     }
+
+    /// Get buffer count
+    pub fn buffer_count(&self) -> usize {
+        let buffers = self.buffers.read();
+        buffers.len()
+    }
+
+    /// Get total number of rows across all buffers
+    pub fn total_rows(&self) -> usize {
+        let buffers = self.buffers.read();
+        buffers.values().map(|b| b.batch.num_rows()).sum()
+    }
+
+    /// Get buffer by index (for iteration purposes)
+    pub fn get_buffer_by_index(&self, index: usize) -> Option<DataBuffer> {
+        let buffers = self.buffers.read();
+        buffers.values().nth(index).map(|b| {
+            b.add_ref();
+            b.clone()
+        })
+    }
+
+    /// Find buffers that match a specific condition
+    pub fn find_buffers<F>(&self, condition: F) -> Vec<DataBuffer>
+    where
+        F: Fn(&DataBuffer) -> bool,
+    {
+        let buffers = self.buffers.read();
+        buffers
+            .values()
+            .filter(|&b| condition(b))
+            .map(|b| {
+                b.add_ref();
+                b.clone()
+            })
+            .collect()
+    }
+
+    /// Get buffers with more than N rows
+    pub fn get_buffers_with_min_rows(&self, min_rows: usize) -> Vec<DataBuffer> {
+        self.find_buffers(|b| b.batch.num_rows() >= min_rows)
+    }
+
+    /// Get buffers with less than N rows
+    pub fn get_buffers_with_max_rows(&self, max_rows: usize) -> Vec<DataBuffer> {
+        self.find_buffers(|b| b.batch.num_rows() <= max_rows)
+    }
+
+    /// Calculate buffer size distribution
+    pub fn buffer_size_distribution(&self) -> HashMap<usize, usize> {
+        let buffers = self.buffers.read();
+        let mut distribution = HashMap::new();
+        
+        for buffer in buffers.values() {
+            let size = buffer.batch.num_rows();
+            *distribution.entry(size).or_insert(0) += 1;
+        }
+        
+        distribution
+    }
 }
 
 /// Data plane manager - manages multiple data planes
 pub struct DataPlaneManager {
     planes: RwLock<HashMap<DataPlaneId, Arc<DataPlane>>>,
+    // 用于跟踪平面使用统计
+    plane_stats: RwLock<HashMap<DataPlaneId, PlaneStats>>,
+}
+
+/// 数据平面统计信息
+#[derive(Debug, Clone)]
+pub struct PlaneStats {
+    /// 创建时间戳
+    pub created_at: u64,
+    /// 最后访问时间戳
+    pub last_accessed: u64,
+    /// 访问计数
+    pub access_count: u64,
+    /// 缓冲区添加计数
+    pub buffer_add_count: u64,
+    /// 缓冲区移除计数
+    pub buffer_remove_count: u64,
+}
+
+impl PlaneStats {
+    pub fn new() -> Self {
+        Self {
+            created_at: current_timestamp(),
+            last_accessed: current_timestamp(),
+            access_count: 0,
+            buffer_add_count: 0,
+            buffer_remove_count: 0,
+        }
+    }
+
+    pub fn record_access(&mut self) {
+        self.last_accessed = current_timestamp();
+        self.access_count += 1;
+    }
+
+    pub fn record_buffer_add(&mut self) {
+        self.buffer_add_count += 1;
+    }
+
+    pub fn record_buffer_remove(&mut self) {
+        self.buffer_remove_count += 1;
+    }
 }
 
 impl DataPlaneManager {
@@ -227,6 +329,7 @@ impl DataPlaneManager {
     pub fn new() -> Self {
         Self {
             planes: RwLock::new(HashMap::new()),
+            plane_stats: RwLock::new(HashMap::new()),
         }
     }
 
@@ -235,7 +338,10 @@ impl DataPlaneManager {
         let plane = Arc::new(DataPlane::new(id.clone(), schema));
 
         let mut planes = self.planes.write();
-        planes.insert(id, plane.clone());
+        planes.insert(id.clone(), plane.clone());
+
+        let mut stats = self.plane_stats.write();
+        stats.insert(id, PlaneStats::new());
 
         Ok(plane)
     }
@@ -243,13 +349,29 @@ impl DataPlaneManager {
     /// Get a data plane by ID
     pub fn get_plane(&self, id: &DataPlaneId) -> Option<Arc<DataPlane>> {
         let planes = self.planes.read();
-        planes.get(id).cloned()
+        let result = planes.get(id).cloned();
+
+        if result.is_some() {
+            let mut stats = self.plane_stats.write();
+            if let Some(stat) = stats.get_mut(id) {
+                stat.record_access();
+            }
+        }
+
+        result
     }
 
     /// Remove a data plane
     pub fn remove_plane(&self, id: &DataPlaneId) -> Option<Arc<DataPlane>> {
         let mut planes = self.planes.write();
-        planes.remove(id)
+        let result = planes.remove(id);
+
+        if result.is_some() {
+            let mut stats = self.plane_stats.write();
+            stats.remove(id);
+        }
+
+        result
     }
 
     /// List all plane IDs
@@ -270,6 +392,58 @@ impl DataPlaneManager {
         planes
             .iter()
             .map(|(id, plane)| (id.clone(), plane.metadata()))
+            .collect()
+    }
+
+    /// Get detailed statistics for a specific plane
+    pub fn plane_stats(&self, id: &DataPlaneId) -> Option<PlaneStats> {
+        let stats = self.plane_stats.read();
+        stats.get(id).cloned()
+    }
+
+    /// Get all plane statistics
+    pub fn all_plane_stats(&self) -> Vec<(DataPlaneId, PlaneStats)> {
+        let stats = self.plane_stats.read();
+        stats.iter().map(|(id, stat)| (id.clone(), stat.clone())).collect()
+    }
+
+    /// Get number of active planes
+    pub fn plane_count(&self) -> usize {
+        let planes = self.planes.read();
+        planes.len()
+    }
+
+    /// Clear all planes
+    pub fn clear(&self) -> usize {
+        let mut planes = self.planes.write();
+        let count = planes.len();
+        planes.clear();
+
+        let mut stats = self.plane_stats.write();
+        stats.clear();
+
+        count
+    }
+
+    /// Find planes with matching schema
+    pub fn find_planes_by_schema(&self, schema: &Schema) -> Vec<Arc<DataPlane>> {
+        let planes = self.planes.read();
+        planes.values()
+            .filter(|plane| {
+                plane.schema().fields.len() == schema.fields.len() &&
+                plane.schema().fields.iter().zip(schema.fields.iter())
+                    .all(|(a, b)| a.name == b.name && a.data_type == b.data_type && a.is_nullable == b.is_nullable)
+            })
+            .cloned()
+            .collect()
+    }
+
+    /// Get planes by memory usage threshold
+    pub fn get_planes_by_memory_threshold(&self, threshold_bytes: usize) -> Vec<Arc<DataPlane>> {
+        let planes = self.planes.read();
+        planes.values()
+            .filter(|plane| plane.estimated_memory_usage() > threshold_bytes)
+            .cloned()
             .collect()
     }
 }
