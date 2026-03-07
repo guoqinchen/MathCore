@@ -698,4 +698,71 @@ mod tests {
         let result = eval("x^2 + 2*x + 1", &vars).unwrap();
         assert!((result - 16.0).abs() < 1e-10);
     }
+
+    #[test]
+    fn test_eval_operators() {
+        assert!((eval_simple("2 + 3").unwrap() - 5.0).abs() < 1e-10);
+        assert!((eval_simple("10 - 4").unwrap() - 6.0).abs() < 1e-10);
+        assert!((eval_simple("3 * 4").unwrap() - 12.0).abs() < 1e-10);
+        assert!((eval_simple("15 / 3").unwrap() - 5.0).abs() < 1e-10);
+        assert!((eval_simple("2 ^ 3").unwrap() - 8.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_eval_functions() {
+        assert!((eval_simple("sin(0)").unwrap() - 0.0).abs() < 1e-10);
+        assert!((eval_simple("cos(0)").unwrap() - 1.0).abs() < 1e-10);
+        assert!((eval_simple("sqrt(4)").unwrap() - 2.0).abs() < 1e-10);
+        assert!((eval_simple("abs(-5)").unwrap() - 5.0).abs() < 1e-10);
+        assert!((eval_simple("exp(0)").unwrap() - 1.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_eval_constants() {
+        assert!((eval_simple("pi").unwrap() - std::f64::consts::PI).abs() < 1e-10);
+        assert!((eval_simple("e").unwrap() - std::f64::consts::E).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_eval_complex_expression() {
+        let result = eval_simple("2 * 3 + 4 * 5").unwrap();
+        assert!((result - 26.0).abs() < 1e-10);
+        
+        let result = eval_simple("(2 + 3) * (4 + 5)").unwrap();
+        assert!((result - 45.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_eval_error_handling() {
+        assert!(eval_simple("").is_err());
+        assert!(eval_simple("x + y").is_err());
+        assert!(eval_simple("1 / 0").is_err());
+    }
+
+    #[test]
+    fn test_differentiate() {
+        let result = differentiate(|x| Ok(x * x), 2.0, Some(1e-6)).unwrap();
+        assert!((result - 4.0).abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_integrate_simpson() {
+        let result = integrate_simpson(|x| Ok(x * x), 0.0, 1.0, Some(100)).unwrap();
+        assert!((result - 1.0/3.0).abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_solve_bisection() {
+        let f = |x: f64| Ok(x * x - 4.0);
+        let result = solve_bisection(f, 0.0, 4.0, Some(1e-6), Some(100)).unwrap();
+        assert!((result - 2.0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn test_solve_newton() {
+        let f = |x: f64| Ok(x * x - 4.0);
+        let df = |x: f64| Ok(2.0 * x);
+        let result = solve_newton(f, df, 1.0, Some(1e-6), Some(100)).unwrap();
+        assert!((result - 2.0).abs() < 1e-4);
+    }
 }

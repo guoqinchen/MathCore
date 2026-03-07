@@ -13,6 +13,22 @@ pub use crate::stream::{
     StreamPublisher, StreamSubscriber,
 };
 
+/// Safely convert byte slice to array with bounds checking
+#[inline]
+fn read_bytes<const N: usize>(data: &[u8], offset: usize) -> Result<[u8; N], StreamError> {
+    if offset + N > data.len() {
+        return Err(StreamError::Serialization(format!(
+            "Buffer underflow: need {} bytes at offset {}, have {}",
+            N,
+            offset,
+            data.len()
+        )));
+    }
+    data[offset..offset + N]
+        .try_into()
+        .map_err(|_| StreamError::Serialization("Failed to convert bytes".to_string()))
+}
+
 // FlatBuffers generated types would go here
 // For now, we use manual implementation that matches the schema
 
@@ -166,43 +182,49 @@ impl FrameDecoder {
             return Err(StreamError::Serialization("Data too short".to_string()));
         }
 
-        // Check magic
         if &data[0..4] != b"PRF1" {
             return Err(StreamError::Serialization("Invalid magic".to_string()));
         }
 
         let mut offset = 4;
 
-        let step_id = u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let step_id = u64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let proof_id = u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let proof_id = u64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let content_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+        let content_len = u32::from_le_bytes(read_bytes(data, offset)?) as usize;
         offset += 4;
+
+        if offset + content_len > data.len() {
+            return Err(StreamError::Serialization("Content extends beyond data".to_string()));
+        }
 
         let content = String::from_utf8(data[offset..offset + content_len].to_vec())
             .map_err(|e| StreamError::Serialization(e.to_string()))?;
         offset += content_len;
 
+        if offset >= data.len() {
+            return Err(StreamError::Serialization("Data truncated at step_type".to_string()));
+        }
         let step_type = StepType::from_u8(data[offset]);
         offset += 1;
 
-        let dep_count = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+        let dep_count = u32::from_le_bytes(read_bytes(data, offset)?) as usize;
         offset += 4;
 
         let mut dependencies = Vec::with_capacity(dep_count);
         for _ in 0..dep_count {
-            let dep = u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+            let dep = u64::from_le_bytes(read_bytes(data, offset)?);
             dependencies.push(dep);
             offset += 8;
         }
 
-        let timestamp = i64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let timestamp = i64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let confidence = f32::from_le_bytes(data[offset..offset + 4].try_into().unwrap());
+        let confidence = f32::from_le_bytes(read_bytes(data, offset)?);
 
         Ok(ProofStepData {
             step_id,
@@ -221,33 +243,40 @@ impl FrameDecoder {
             return Err(StreamError::Serialization("Data too short".to_string()));
         }
 
-        // Check magic
         if &data[0..4] != b"GFX1" {
             return Err(StreamError::Serialization("Invalid magic".to_string()));
         }
 
         let mut offset = 4;
 
-        let frame_id = u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let frame_id = u64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let timestamp = i64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let timestamp = i64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let width = u16::from_le_bytes(data[offset..offset + 2].try_into().unwrap());
+        let width = u16::from_le_bytes(read_bytes(data, offset)?);
         offset += 2;
 
-        let height = u16::from_le_bytes(data[offset..offset + 2].try_into().unwrap());
+        let height = u16::from_le_bytes(read_bytes(data, offset)?);
         offset += 2;
 
-        let pixel_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+        let pixel_len = u32::from_le_bytes(read_bytes(data, offset)?) as usize;
         offset += 4;
+
+        if offset + pixel_len > data.len() {
+            return Err(StreamError::Serialization("Pixel data extends beyond buffer".to_string()));
+        }
 
         let pixels = data[offset..offset + pixel_len].to_vec();
         offset += pixel_len;
 
-        let shm_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+        let shm_len = u32::from_le_bytes(read_bytes(data, offset)?) as usize;
         offset += 4;
+
+        if offset + shm_len > data.len() {
+            return Err(StreamError::Serialization("Shm_id extends beyond buffer".to_string()));
+        }
 
         let shm_id = String::from_utf8(data[offset..offset + shm_len].to_vec())
             .map_err(|e| StreamError::Serialization(e.to_string()))?;
@@ -268,36 +297,42 @@ impl FrameDecoder {
             return Err(StreamError::Serialization("Data too short".to_string()));
         }
 
-        // Check magic
         if &data[0..4] != b"PRG1" {
             return Err(StreamError::Serialization("Invalid magic".to_string()));
         }
 
         let mut offset = 4;
 
-        let proof_id = u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let proof_id = u64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let current_step = u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let current_step = u64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let total_steps = u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let total_steps = u64::from_le_bytes(read_bytes(data, offset)?);
         offset += 8;
 
-        let percentage = f32::from_le_bytes(data[offset..offset + 4].try_into().unwrap());
+        let percentage = f32::from_le_bytes(read_bytes(data, offset)?);
         offset += 4;
 
+        if offset >= data.len() {
+            return Err(StreamError::Serialization("Data truncated at status".to_string()));
+        }
         let status = ProgressStatus::from_u8(data[offset]);
         offset += 1;
 
-        let msg_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+        let msg_len = u32::from_le_bytes(read_bytes(data, offset)?) as usize;
         offset += 4;
+
+        if offset + msg_len > data.len() {
+            return Err(StreamError::Serialization("Message extends beyond buffer".to_string()));
+        }
 
         let message = String::from_utf8(data[offset..offset + msg_len].to_vec())
             .map_err(|e| StreamError::Serialization(e.to_string()))?;
         offset += msg_len;
 
-        let timestamp = i64::from_le_bytes(data[offset..offset + 8].try_into().unwrap());
+        let timestamp = i64::from_le_bytes(read_bytes(data, offset)?);
 
         Ok(ProgressData {
             proof_id,

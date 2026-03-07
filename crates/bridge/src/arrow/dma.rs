@@ -55,6 +55,11 @@ enum DmaBacking {
     Anonymous,
 }
 
+// SAFETY: DmaBuffer is safe to send and share across threads because:
+// 1. The reference count uses atomic operations (AtomicU64) for thread-safe access
+// 2. The underlying pointer is only accessed through safe methods that enforce borrowing rules
+// 3. The Arc<DmaData> provides thread-safe reference counting
+// 4. All mutations require &mut self, ensuring exclusive access
 unsafe impl Send for DmaBuffer {}
 unsafe impl Sync for DmaBuffer {}
 
@@ -102,21 +107,31 @@ impl DmaBuffer {
 
     /// Get raw pointer to the buffer
     pub fn as_ptr(&self) -> *const u8 {
+        // SAFETY: The offset is guaranteed to be within bounds because:
+        // 1. offset is set only by slice() which validates bounds
+        // 2. offset is always < len <= capacity
+        // 3. ptr is valid for capacity bytes
         unsafe { self.data.ptr.add(self.offset) }
     }
 
     /// Get mutable raw pointer
     pub fn as_mut_ptr(&mut self) -> *mut u8 {
+        // SAFETY: Same as as_ptr() - offset is guaranteed to be within bounds
         unsafe { self.data.ptr.add(self.offset) }
     }
 
     /// Get slice of the buffer
     pub fn as_slice(&self) -> &[u8] {
+        // SAFETY: Both the pointer and length are valid:
+        // 1. as_ptr() returns a valid pointer (see its SAFETY comment)
+        // 2. self.len is guaranteed to be <= capacity - offset
+        // 3. The memory is valid for the lifetime of the slice
         unsafe { std::slice::from_raw_parts(self.as_ptr(), self.len) }
     }
 
     /// Get mutable slice of the buffer
     pub fn as_slice_mut(&mut self) -> &mut [u8] {
+        // SAFETY: Same as as_slice() - pointer and length are valid
         unsafe { std::slice::from_raw_parts_mut(self.as_mut_ptr(), self.len) }
     }
 
@@ -154,6 +169,10 @@ impl DmaBuffer {
             ));
         }
 
+        // SAFETY: The bounds check above ensures that:
+        // 1. offset + data.len() <= self.len
+        // 2. as_mut_ptr() returns a valid pointer for self.len bytes
+        // 3. The memory regions do not overlap (data is a separate allocation)
         unsafe {
             std::ptr::copy_nonoverlapping(data.as_ptr(), self.as_mut_ptr().add(offset), data.len());
         }
@@ -168,6 +187,11 @@ impl DmaBuffer {
         }
 
         let mut data = vec![0u8; len];
+        // SAFETY: The bounds check above ensures that:
+        // 1. offset + len <= self.len
+        // 2. as_ptr() returns a valid pointer for self.len bytes
+        // 3. data is a newly allocated vector with len bytes
+        // 4. The memory regions do not overlap (data is a separate allocation)
         unsafe {
             std::ptr::copy_nonoverlapping(self.as_ptr().add(offset), data.as_mut_ptr(), len);
         }

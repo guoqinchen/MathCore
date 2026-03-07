@@ -12,6 +12,9 @@ pub struct SharedMemory {
     mapping: Option<memmap2::MmapMut>,
 }
 
+// SAFETY: SharedMemory uses atomic operations for thread-safe access to the underlying
+// memory region. The pointer is only accessed through safe methods that enforce proper
+// borrowing rules and bounds checking.
 unsafe impl Send for SharedMemory {}
 unsafe impl Sync for SharedMemory {}
 
@@ -31,6 +34,10 @@ impl SharedMemory {
         file.set_len(size as u64)
             .map_err(|e| crate::Error::Io(e.to_string()))?;
 
+        // SAFETY: memmap2::MmapMut::map_mut is safe because:
+        // 1. The file was successfully opened with read/write permissions
+        // 2. The file size was set to the requested size
+        // 3. The mapping is owned by this function and will be properly cleaned up
         let mut mapping = unsafe {
             memmap2::MmapMut::map_mut(&file).map_err(|e| crate::Error::Io(e.to_string()))?
         };
@@ -56,6 +63,10 @@ impl SharedMemory {
 
         let size = metadata.len() as usize;
 
+        // SAFETY: memmap2::MmapMut::map_mut is safe because:
+        // 1. The file exists and was successfully opened
+        // 2. The file metadata was successfully read
+        // 3. The mapping is owned by this function and will be properly cleaned up
         let mut mapping = unsafe {
             memmap2::MmapMut::map_mut(&file).map_err(|e| crate::Error::Io(e.to_string()))?
         };
@@ -95,6 +106,10 @@ impl SharedMemory {
             return Err(crate::Error::Io("Write beyond region size".to_string()));
         }
 
+        // SAFETY: The bounds check above ensures that:
+        // 1. offset + data.len() <= self.size
+        // 2. self.ptr is valid for self.size bytes
+        // 3. The memory region does not overlap with data (data is a separate allocation)
         unsafe {
             std::ptr::copy_nonoverlapping(data.as_ptr(), self.ptr.add(offset), data.len());
         }
@@ -110,6 +125,11 @@ impl SharedMemory {
 
         let mut data = vec![0u8; len];
 
+        // SAFETY: The bounds check above ensures that:
+        // 1. offset + len <= self.size
+        // 2. self.ptr is valid for self.size bytes
+        // 3. data is a newly allocated vector with len bytes
+        // 4. The memory regions do not overlap (data is a separate allocation)
         unsafe {
             std::ptr::copy_nonoverlapping(self.ptr.add(offset), data.as_mut_ptr(), len);
         }

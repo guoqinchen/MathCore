@@ -79,6 +79,9 @@ impl Default for PythonBridge {
     }
 }
 
+#[cfg(test)]
+mod tests;
+
 /// MathEngine Python class
 #[cfg(feature = "pyo3")]
 use pyo3::prelude::*;
