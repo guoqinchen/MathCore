@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-2021%20edition-orange.svg)](https://www.rust-lang.org/)
 [![CI](https://img.shields.io/badge/CI-passing-success.svg)]()
-[![Tests](https://img.shields.io/badge/tests-68%2F71%20passing-yellowgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-266%20passing-success.svg)]()
 
 > A high-performance local mathematical computation engine for high school to university-level mathematics.
 >
@@ -240,7 +240,7 @@ fn main() {
 - [x] MessagePack 协议层 / MessagePack protocol layer
 - [x] 计算扩展 (符号, 数值) / Compute extensions
 - [x] CLI 接口 / CLI interface
-- [x] 单元测试 (68/71 通过) / Unit tests
+- [x] 单元测试 (266 测试全部通过) / Unit tests (266 tests passing)
 
 ### Phase 2: 性能与 GPU / Performance & GPU (Week 6-9) 🔄 进行中
 

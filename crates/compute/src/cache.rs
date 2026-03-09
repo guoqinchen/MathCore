@@ -32,6 +32,7 @@ pub enum CacheError {
 /// L1 Memory Cache - Fast in-memory LRU cache
 pub struct L1Cache<K, V> {
     data: HashMap<K, CacheEntry<V>>,
+    order: Vec<K>,
     capacity: usize,
     ttl: Duration,
     hits: AtomicU64,
@@ -49,6 +50,7 @@ impl<K: Eq + std::hash::Hash + Clone, V: Clone> L1Cache<K, V> {
     pub fn new(capacity: usize, ttl_secs: u64) -> Self {
         Self {
             data: HashMap::new(),
+            order: Vec::new(),
             capacity,
             ttl: Duration::from_secs(ttl_secs),
             hits: AtomicU64::new(0),
